@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Catálogo de Filmes V2",
+    "slug": "catalogo-filmes-v2",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E50914"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.infnet.catalogofilmesv2"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#E50914"
+      },
+      "package": "com.infnet.catalogofilmesv2"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "scheme": "catalogofilmes",
+    "plugins": ["expo-router", "expo-asset"]
+  }
+}
