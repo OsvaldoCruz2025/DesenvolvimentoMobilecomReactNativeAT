@@ -49,4 +49,4 @@ constants/    # Configurações
 
 ## 📝 Desenvolvido por
 
-Aluno INFNET - Desenvolvimento Mobile com React Native
+Osvaldo Cruz - Desenvolvimento Mobile com React Native
