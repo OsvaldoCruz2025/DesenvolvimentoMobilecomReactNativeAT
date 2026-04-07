@@ -15,16 +15,41 @@ import { useTheme } from "../providers/ThemeContext";
 import { useMovies } from "../hooks/useMovies";
 import { useFavorites } from "../hooks/useFavorites";
 import { getTMDBImageUrl } from "../services/Image";
-import { getRatingColor } from "../services/Themes";
+import { getRatingColor, lightTheme } from "../services/Themes";
+
+type ThemeColors = typeof lightTheme;
+
+type MovieGenre = {
+  id: number;
+  name: string;
+};
+
+type MovieDetails = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  vote_average: number;
+  release_date: string | null;
+  runtime?: number;
+  genres?: MovieGenre[];
+  overview?: string;
+  status?: string;
+  original_language?: string;
+  budget: number;
+  revenue: number;
+};
 
 export default function DetailsScreen() {
-  const { movieId } = useLocalSearchParams();
-  const { theme } = useTheme();
+  const { movieId } = useLocalSearchParams<{ movieId?: string | string[] }>();
+  const { theme } = useTheme() as { theme: ThemeColors };
   const router = useRouter();
   const { fetchMovieDetails } = useMovies();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const movieIdValue = Array.isArray(movieId) ? movieId[0] : movieId;
+  const movieIdNumber = Number(movieIdValue);
 
-  const [movie, setMovie] = useState(null);
+  const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [favoriteState, setFavoriteState] = useState(false);
 
@@ -37,12 +62,18 @@ export default function DetailsScreen() {
    */
   const loadMovieDetails = async () => {
     try {
+      if (!movieIdValue || Number.isNaN(movieIdNumber)) {
+        throw new Error("ID do filme inválido");
+      }
+
       setLoading(true);
-      const data = await fetchMovieDetails(movieId);
+      const data = (await fetchMovieDetails(
+        movieIdNumber,
+      )) as MovieDetails | null;
       setMovie(data);
 
       // Verifica se está nos favoritos
-      const isFav = await isFavorite(movieId);
+      const isFav = await isFavorite(movieIdNumber);
       setFavoriteState(isFav);
     } catch (error) {
       console.error("Erro ao carregar detalhes:", error);
@@ -106,8 +137,8 @@ export default function DetailsScreen() {
     );
   }
 
-  const backdropUrl = getTMDBImageUrl(movie.backdrop_path, "w780");
-  const posterUrl = getTMDBImageUrl(movie.poster_path, "w500");
+  const backdropUrl = getTMDBImageUrl(movie.backdrop_path ?? "", "w780");
+  const posterUrl = getTMDBImageUrl(movie.poster_path ?? "", "w500");
   const ratingColor = getRatingColor(movie.vote_average, theme);
   const releaseYear = movie.release_date
     ? new Date(movie.release_date).getFullYear()

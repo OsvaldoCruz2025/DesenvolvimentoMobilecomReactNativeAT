@@ -2,8 +2,36 @@ import { useState, useEffect, useCallback } from "react";
 import { Alert } from "react-native";
 
 const API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY;
+const READ_ACCESS_TOKEN = process.env.EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN;
 const BASE_URL =
   process.env.EXPO_PUBLIC_TMDB_BASE_URL || "https://api.themoviedb.org/3";
+
+const buildRequestConfig = (endpoint) => {
+  const separator = endpoint.includes("?") ? "&" : "?";
+
+  if (API_KEY) {
+    return {
+      url: `${BASE_URL}${endpoint}${separator}api_key=${API_KEY}&language=pt-BR`,
+      options: {},
+    };
+  }
+
+  if (READ_ACCESS_TOKEN) {
+    return {
+      url: `${BASE_URL}${endpoint}${separator}language=pt-BR`,
+      options: {
+        headers: {
+          Authorization: `Bearer ${READ_ACCESS_TOKEN}`,
+          Accept: "application/json",
+        },
+      },
+    };
+  }
+
+  throw new Error(
+    "TMDB não configurado. Adicione EXPO_PUBLIC_TMDB_API_KEY ou EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN no arquivo .env",
+  );
+};
 
 /**
  * Hook customizado para buscar filmes da API TMDB
@@ -21,19 +49,19 @@ export const useMovies = () => {
    */
   const fetchFromAPI = async (endpoint) => {
     try {
-      if (!API_KEY) {
-        throw new Error(
-          "TMDB API Key não configurada. Configure no arquivo .env",
-        );
-      }
-
-      const url = `${BASE_URL}${endpoint}${endpoint.includes("?") ? "&" : "?"}api_key=${API_KEY}&language=pt-BR`;
+      const { url, options } = buildRequestConfig(endpoint);
 
       console.log("📡 Buscando:", endpoint);
 
-      const response = await fetch(url);
+      const response = await fetch(url, options);
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error(
+            "Credenciais da TMDB inválidas. Use uma API Key válida ou configure EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN no arquivo .env",
+          );
+        }
+
         throw new Error(`Erro na API: ${response.status}`);
       }
 

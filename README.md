@@ -21,6 +21,8 @@ npm install
 
 2. Configure as variáveis de ambiente no arquivo `.env`
 
+Se a TMDB retornar erro `401`, configure também `EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN`. Esse token fica no painel da TMDB em `Settings > API`.
+
 3. Inicie o projeto:
 
 ```bash
